@@ -488,6 +488,7 @@ static void vulkan_init_pipelines(vk_t *vk)
    shader_stages[0].pName               = "main";
    vkCreateShaderModule(vk->context->device,
          &module_info, NULL, &shader_stages[0].module);
+   vulkan_debug_mark_shader_module(vk->context->device, shader_stages[0].module);
 
    blend_attachment.blendEnable         = true;
    blend_attachment.colorWriteMask      = 0xf;
@@ -505,6 +506,7 @@ static void vulkan_init_pipelines(vk_t *vk)
    shader_stages[1].pName               = "main";
    vkCreateShaderModule(vk->context->device,
          &module_info, NULL, &shader_stages[1].module);
+   vulkan_debug_mark_shader_module(vk->context->device, shader_stages[1].module);
 
    vkCreateGraphicsPipelines(vk->context->device, vk->pipelines.cache,
          1, &pipe, NULL, &vk->pipelines.font);
@@ -517,6 +519,7 @@ static void vulkan_init_pipelines(vk_t *vk)
    shader_stages[1].pName = "main";
    vkCreateShaderModule(vk->context->device,
          &module_info, NULL, &shader_stages[1].module);
+   vulkan_debug_mark_shader_module(vk->context->device, shader_stages[1].module);
 
    vkCreateGraphicsPipelines(vk->context->device, vk->pipelines.cache,
          1, &pipe, NULL, &vk->pipelines.alpha_blend);
@@ -544,6 +547,7 @@ static void vulkan_init_pipelines(vk_t *vk)
    shader_stages[1].pName = "main";
    vkCreateShaderModule(vk->context->device,
          &module_info, NULL, &shader_stages[1].module);
+   vulkan_debug_mark_shader_module(vk->context->device, shader_stages[1].module);
 
    vkCreateGraphicsPipelines(vk->context->device, vk->pipelines.cache,
          1, &pipe, NULL, &vk->pipelines.hdr);
@@ -601,6 +605,7 @@ static void vulkan_init_pipelines(vk_t *vk)
       shader_stages[0].pName = "main";
       vkCreateShaderModule(vk->context->device,
             &module_info, NULL, &shader_stages[0].module);
+      vulkan_debug_mark_shader_module(vk->context->device, shader_stages[0].module);
 
       switch (i >> 1)
       {
@@ -637,6 +642,7 @@ static void vulkan_init_pipelines(vk_t *vk)
       shader_stages[1].pName = "main";
       vkCreateShaderModule(vk->context->device,
             &module_info, NULL, &shader_stages[1].module);
+      vulkan_debug_mark_shader_module(vk->context->device, shader_stages[1].module);
 
       switch (i >> 1)
       {
@@ -671,6 +677,7 @@ static void vulkan_init_pipelines(vk_t *vk)
    module_info.pCode      = rgb565_to_rgba8888_comp;
    vkCreateShaderModule(vk->context->device,
          &module_info, NULL, &cpipe.stage.module);
+   vulkan_debug_mark_shader_module(vk->context->device, cpipe.stage.module);
    vkCreateComputePipelines(vk->context->device, vk->pipelines.cache,
          1, &cpipe, NULL, &vk->pipelines.rgb565_to_rgba8888);
    vkDestroyShaderModule(vk->context->device, cpipe.stage.module, NULL);
@@ -1593,6 +1600,8 @@ static void *vulkan_init(const video_info_t *video,
 
          vkAllocateCommandBuffers(vk->context->device,
                &info, &vk->swapchain[i].cmd);
+
+         vulkan_debug_mark_command_buffer(vk->context->device, vk->swapchain[i].cmd);
       }
    }
 
@@ -1703,6 +1712,8 @@ static void vulkan_check_swapchain(vk_t *vk)
 
          vkAllocateCommandBuffers(vk->context->device,
                &info, &vk->swapchain[i].cmd);
+
+         vulkan_debug_mark_command_buffer(vk->context->device, vk->swapchain[i].cmd);
       }
    }
    vk->context->flags              &= ~VK_CTX_FLAG_INVALID_SWAPCHAIN;

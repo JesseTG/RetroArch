@@ -301,6 +301,8 @@ static void vulkan_font_flush(vulkan_raster_t *font)
       cmd_info.commandBufferCount = 1;
       vkAllocateCommandBuffers(font->vk->context->device, &cmd_info, &staging);
 
+      vulkan_debug_mark_command_buffer(font->vk->context->device, staging);
+
       begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
       begin_info.pNext            = NULL;
       begin_info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;

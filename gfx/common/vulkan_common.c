@@ -392,6 +392,18 @@ void vulkan_debug_mark_memory(VkDevice device, VkDeviceMemory memory)
    vulkan_debug_mark_object(device, VK_OBJECT_TYPE_DEVICE_MEMORY, (uint64_t)memory, "RetroArch memory", ++object_count);
 }
 
+void vulkan_debug_mark_command_buffer(VkDevice device, VkCommandBuffer command_buffer)
+{
+   static unsigned object_count;
+   vulkan_debug_mark_object(device, VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)command_buffer, "RetroArch command buffer", ++object_count);
+}
+
+void vulkan_debug_mark_shader_module(VkDevice device, VkShaderModule shader_module)
+{
+   static unsigned object_count;
+   vulkan_debug_mark_object(device, VK_OBJECT_TYPE_SHADER_MODULE, (uint64_t)shader_module, "RetroArch shader module", ++object_count);
+}
+
 static INLINE unsigned vulkan_format_to_bpp(VkFormat format)
 {
    switch (format)
@@ -749,6 +761,7 @@ struct vk_texture vulkan_create_texture(vk_t *vk,
 
                vkAllocateCommandBuffers(vk->context->device,
                      &cmd_info, &staging);
+               vulkan_debug_mark_command_buffer(vk->context->device, staging);
 
                begin_info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 

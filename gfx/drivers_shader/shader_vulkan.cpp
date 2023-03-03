@@ -1016,6 +1016,7 @@ static bool vulkan_filter_chain_load_luts(
    cmd_info.commandBufferCount                   = 1;
 
    vkAllocateCommandBuffers(info->device, &cmd_info, &cmd);
+   vulkan_debug_mark_command_buffer(info->device, cmd);
    begin_info.flags                              = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
    vkBeginCommandBuffer(cmd, &begin_info);
    recording                                     = true;
@@ -2074,12 +2075,14 @@ bool Pass::init_pipeline()
    shader_stages[0].stage   = VK_SHADER_STAGE_VERTEX_BIT;
    shader_stages[0].pName   = "main";
    vkCreateShaderModule(device, &module_info, NULL, &shader_stages[0].module);
+   vulkan_debug_mark_shader_module(device, shader_stages[0].module);
 
    module_info.codeSize     = fragment_shader.size() * sizeof(uint32_t);
    module_info.pCode        = fragment_shader.data();
    shader_stages[1].stage   = VK_SHADER_STAGE_FRAGMENT_BIT;
    shader_stages[1].pName   = "main";
    vkCreateShaderModule(device, &module_info, NULL, &shader_stages[1].module);
+   vulkan_debug_mark_shader_module(device, shader_stages[1].module);
 
    pipe.stageCount          = 2;
    pipe.pStages             = shader_stages;

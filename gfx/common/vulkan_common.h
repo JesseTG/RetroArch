@@ -744,7 +744,8 @@ void vulkan_set_uniform_buffer(
 
 void vulkan_debug_mark_image(VkDevice device, VkImage image);
 void vulkan_debug_mark_memory(VkDevice device, VkDeviceMemory memory);
-
+void vulkan_debug_mark_command_buffer(VkDevice device, VkCommandBuffer command_buffer);
+void vulkan_debug_mark_shader_module(VkDevice device, VkShaderModule shader_module);
 static INLINE VkFormat vulkan_remap_to_texture_format(VkFormat fmt)
 {
    if (fmt == VK_FORMAT_R5G6B5_UNORM_PACK16)
