@@ -100,6 +100,32 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vulkan_debug_cb(
 }
 #endif
 
+static const char* vulkan_present_mode_name(VkPresentModeKHR mode)
+{
+   switch (mode)
+   {
+      case VK_PRESENT_MODE_IMMEDIATE_KHR:
+         return "VK_PRESENT_MODE_IMMEDIATE_KHR";
+      case VK_PRESENT_MODE_MAILBOX_KHR:
+         return "VK_PRESENT_MODE_MAILBOX_KHR";
+      case VK_PRESENT_MODE_FIFO_KHR:
+         return "VK_PRESENT_MODE_FIFO_KHR";
+      case VK_PRESENT_MODE_FIFO_RELAXED_KHR:
+         return "VK_PRESENT_MODE_FIFO_RELAXED_KHR";
+      case VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR:
+         return "VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR";
+      case VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR:
+         return "VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR";
+      case VK_PRESENT_MODE_RANGE_SIZE_KHR:
+         return "VK_PRESENT_MODE_RANGE_SIZE_KHR";
+      case VK_PRESENT_MODE_MAX_ENUM_KHR:
+         return "VK_PRESENT_MODE_MAX_ENUM_KHR";
+      default:
+         return "<unknown>";
+   }
+
+}
+
 static void vulkan_emulated_mailbox_deinit(
       struct vulkan_emulated_mailbox *mailbox)
 {
@@ -3056,8 +3082,8 @@ bool vulkan_create_swapchain(gfx_ctx_vulkan_data_t *vk,
 #ifdef VULKAN_DEBUG
    for (i = 0; i < present_mode_count; i++)
    {
-      RARCH_LOG("[Vulkan]: Swapchain supports present mode: %u.\n",
-            present_modes[i]);
+      RARCH_LOG("[Vulkan]: Swapchain supports present mode: %s.\n",
+            vulkan_present_mode_name(present_modes[i]));
    }
 #endif
 
@@ -3084,8 +3110,8 @@ bool vulkan_create_swapchain(gfx_ctx_vulkan_data_t *vk,
    }
 
 #ifdef VULKAN_DEBUG
-   RARCH_LOG("[Vulkan]: Creating swapchain with present mode: %u\n",
-         (unsigned)swapchain_present_mode);
+   RARCH_LOG("[Vulkan]: Creating swapchain with present mode: %s.\n",
+         vulkan_present_mode_name(swapchain_present_mode));
 #endif
 
    vkGetPhysicalDeviceSurfaceFormatsKHR(vk->context.gpu,
