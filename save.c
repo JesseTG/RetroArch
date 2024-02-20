@@ -379,6 +379,8 @@ static bool content_load_ram_file(unsigned slot)
 
    if (rc > 0)
    {
+      autosave_t *handle = NULL;
+      unsigned i;
       if (rc > (ssize_t)mem_info.size)
       {
          RARCH_WARN("[SRAM]: SRAM is larger than implementation expects, "
@@ -389,9 +391,25 @@ static bool content_load_ram_file(unsigned slot)
                (unsigned)mem_info.size);
          rc = mem_info.size;
       }
-      autosave_lock();
+
+      for (i = 0; i < autosave_state.num; i++)
+      {
+         if (autosave_state.list[i] && autosave_state.list[i]->retro_buffer == mem_info.data)
+         { /* If this buffer has an autosave thread watching it...*/
+            handle = autosave_state.list[i];
+         }
+         /** FIXME: If retro_get_memory_data returns a different address during a session,
+          * then only the address returned by the call used to create the autosave thread
+          * will be synchronized. */
+      }
+
+      if (handle)
+         slock_lock(handle->lock);
+
       memcpy(mem_info.data, buf, (size_t)rc);
-      autosave_unlock();
+
+      if (handle)
+         slock_unlock(handle->lock);
    }
 
    if (buf)
