@@ -48,7 +48,7 @@ static void alsa_worker_thread(void *data)
    }
 
    RARCH_DBG("[ALSA] [playback thread %p]: Beginning playback worker thread\n", thread_id);
-   while (!alsa->info.thread_dead)
+   while (!alsa_thread_dead(&alsa->info))
    {
       size_t avail;
       size_t fifo_size;
@@ -89,7 +89,7 @@ static void alsa_worker_thread(void *data)
 
 end:
    slock_lock(alsa->info.cond_lock);
-   alsa->info.thread_dead = true;
+   alsa_set_thread_dead(&alsa->info, true);
    scond_signal(alsa->info.cond);
    slock_unlock(alsa->info.cond_lock);
    free(buf);
@@ -161,7 +161,7 @@ static ssize_t alsa_thread_write(void *data, const void *buf, size_t size)
 {
    alsa_thread_t *alsa = (alsa_thread_t*)data;
 
-   if (alsa->info.thread_dead)
+   if (alsa_thread_dead(&alsa->info))
       return -1;
 
    if (alsa->nonblock)
@@ -181,7 +181,7 @@ static ssize_t alsa_thread_write(void *data, const void *buf, size_t size)
    else
    {
       size_t written = 0;
-      while (written < size && !alsa->info.thread_dead)
+      while (written < size && !alsa_thread_dead(&alsa->info))
       {
          size_t avail;
          slock_lock(alsa->info.fifo_lock);
@@ -191,7 +191,7 @@ static ssize_t alsa_thread_write(void *data, const void *buf, size_t size)
          {
             slock_unlock(alsa->info.fifo_lock);
             slock_lock(alsa->info.cond_lock);
-            if (!alsa->info.thread_dead)
+            if (!alsa_thread_dead(&alsa->info))
                scond_wait(alsa->info.cond, alsa->info.cond_lock);
             slock_unlock(alsa->info.cond_lock);
          }
@@ -245,7 +245,7 @@ static size_t alsa_thread_write_avail(void *data)
    alsa_thread_t *alsa = (alsa_thread_t*)data;
    size_t val;
 
-   if (alsa->info.thread_dead)
+   if (alsa_thread_dead(&alsa->info))
       return 0;
    slock_lock(alsa->info.fifo_lock);
    val = FIFO_WRITE_AVAIL(alsa->info.buffer);

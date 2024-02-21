@@ -81,7 +81,7 @@ static void alsa_microphone_worker_thread(void *microphone_context)
              snd_pcm_name(microphone->info.pcm),
              snd_pcm_state_name(snd_pcm_state(microphone->info.pcm)));
 
-   while (!microphone->info.thread_dead)
+   while (!alsa_thread_dead(&microphone->info))
    { /* Until we're told to stop... */
       size_t avail;
       size_t fifo_size;
@@ -159,7 +159,7 @@ static void alsa_microphone_worker_thread(void *microphone_context)
 
 end:
    slock_lock(microphone->info.cond_lock);
-   microphone->info.thread_dead = true;
+   alsa_set_thread_dead(&microphone->info, true);
    scond_signal(microphone->info.cond);
    slock_unlock(microphone->info.cond_lock);
    free(buf);
@@ -175,7 +175,7 @@ static int alsa_thread_microphone_read(void *driver_context, void *microphone_co
    if (!alsa || !microphone || !buf) /* If any of the parameters were invalid... */
       return -1;
 
-   if (microphone->info.thread_dead) /* If the mic thread is shutting down... */
+   if (alsa_thread_dead(&microphone->info)) /* If the mic thread is shutting down... */
       return -1;
 
    state = snd_pcm_state(microphone->info.pcm);
@@ -219,7 +219,7 @@ static int alsa_thread_microphone_read(void *driver_context, void *microphone_co
    else
    {
       size_t read = 0;
-      while (read < size && !microphone->info.thread_dead)
+      while (read < size && !alsa_thread_dead(&microphone->info))
       { /* Until we've read all requested samples (or we're told to stop)... */
          size_t avail;
 
@@ -238,7 +238,7 @@ static int alsa_thread_microphone_read(void *driver_context, void *microphone_co
             slock_lock(microphone->info.cond_lock);
 
             /* "Unless we're closing up shop..." */
-            if (!microphone->info.thread_dead)
+            if (!alsa_thread_dead(&microphone->info))
                /* "...let me know when you've produced some samples." */
                scond_wait(microphone->info.cond, microphone->info.cond_lock);
 

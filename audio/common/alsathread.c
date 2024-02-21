@@ -16,6 +16,22 @@
 
 #include "alsathread.h"
 
+bool alsa_thread_dead(alsa_thread_info_t *info)
+{
+   if (!info || !info->cond_lock)
+      return false;
+
+   return __atomic_load_n(&info->thread_dead, __ATOMIC_SEQ_CST);
+}
+
+void alsa_set_thread_dead(alsa_thread_info_t *info, bool dead)
+{
+   if (!info || !info->cond_lock)
+      return;
+
+   __atomic_store_n(&info->thread_dead, dead, __ATOMIC_SEQ_CST);
+}
+
 void alsa_thread_free_info_members(alsa_thread_info_t *info)
 {
    if (info)
@@ -23,7 +39,7 @@ void alsa_thread_free_info_members(alsa_thread_info_t *info)
       if (info->worker_thread)
       {
          slock_lock(info->cond_lock);
-         info->thread_dead = true;
+         alsa_set_thread_dead(info, true);
          slock_unlock(info->cond_lock);
          sthread_join(info->worker_thread);
       }
